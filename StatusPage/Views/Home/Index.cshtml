@@ -1,0 +1,53 @@
+﻿@model StatusPage.Models.StatusCollectionModel
+
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<h2 class="prose  hn-category">Status</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col">Service</th>
+            <th scope="col">Status</th>
+            <th scope="col">Last Update</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var service in Model.StatusList)
+        {
+            @if (service.Status == 0)
+            {
+                <tr>
+                    <td><a href="@service.StatusURL">@service.Service</a></td>
+                    <td><a href="@service.StatusURL">@service.StatusDescription</a></td>
+                    <td>@service.UpdateDT</td>
+                </tr>
+            }
+            else if (service.Status == 1)
+            {
+                <tr class="warning">
+                    <td><a href="@service.StatusURL">@service.Service</a></td>
+                    <td><a href="@service.StatusURL">@service.StatusDescription</a></td>
+                    <td>@service.UpdateDT</td>
+                </tr>
+            }
+            else if (service.Status == 2)
+            {
+                <tr class="danger">
+                    <td><a href="@service.StatusURL">@service.Service</a></td>
+                    <td><a href="@service.StatusURL">@service.StatusDescription</a></td>
+                    <td>@service.UpdateDT</td>
+                </tr>
+            }
+            else
+            {
+                <tr class="info">
+                    <td><a href="@service.StatusURL">@service.Service</a></td>
+                    <td><a href="@service.StatusURL">@service.StatusDescription</a></td>
+                    <td>@service.UpdateDT</td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>

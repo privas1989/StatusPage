@@ -1,0 +1,26 @@
+﻿@model StatusPage.Models.StatusCollectionModel
+
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<h2 class="hn-category">@Html.Raw(@Model.CollectionName)</h2>
+<table class="table  table--condensed  table--hover  links--basic  landmark">
+    <thead>
+        <tr>
+            <th scope="col">Feature</th>
+            <th scope="col">Status</th>
+            <th scope="col">Last Update</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var service in Model.StatusList)
+        {
+        <tr>
+            <td>@service.Service</td>
+            <td>@service.StatusDescription</td>
+            <td>@service.UpdateDT</td>
+        </tr>
+        }
+    </tbody>
+</table>
