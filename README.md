@@ -16,7 +16,7 @@ All of the configurations can be done through the appsettings.json file. To remo
 ### Google Apps
 This webapp comes with default applications that are monitored. 
 If you want to add more, such as Google Classroom or Google Voice, add them to the "monitoredApplications" section under "GoogleApps" with the appsettings.json file.
-To remove any applications, delete them from the same array.
+To remove any applications, delete them from the same array. A list can be found here: https://www.google.com/appsstatus/dashboard/summary
 
 ### Adobe CC
 I've programmed the Adobe CC section to display critical information first, followed by partial degradation and more informational status.
