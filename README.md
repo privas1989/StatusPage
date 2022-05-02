@@ -1,4 +1,5 @@
 # Status Page
+![Employee data](/Images/example.jpg?raw=true "Employee Data title")
 
 A generic status page that pulls data from various sources used within an organization. This webapp uses .NET Core 3.1.
 
