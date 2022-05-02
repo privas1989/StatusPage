@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using StatusPage.Models;
 using StatusPage.Services;
-using System.Net.Http;
-using Newtonsoft.Json.Linq;
 using Microsoft.Extensions.Configuration;
+using StatusPage.StatusClass;
 
 namespace StatusPage.Controllers
 {
@@ -26,13 +23,7 @@ namespace StatusPage.Controllers
         public IActionResult Index()
         {
             StatusCollectionModel bucket = new StatusCollectionModel();
-            List<StatusModel> statusList = new List<StatusModel>();          
-
-            statusList.Add(GetStatusAsync("https://status.instructure.com/", "https://status.instructure.com/api/v2/status.json", "Canvas").Result);
-            statusList.Add(GetStatusAsync("https://status.duo.com/", "https://status.duo.com/api/v2/status.json", "Duo MFA").Result);
-
-            statusList.Add(GetStatusAsync("https://status.zoom.us/", "https://status.zoom.us/api/v2/status.json", "Zoom").Result);
-            statusList.Add(GetStatusAsync("https://status.slack.com/", "https://status.slack.com/api/v2.0.0/current", "Slack").Result);
+            List<StatusModel> statusList = new List<StatusModel>();
 
             if (_config.GetSection("Office365").Exists())
             {
@@ -75,8 +66,23 @@ namespace StatusPage.Controllers
                 statusList.Add(adobe.GetStatus());
             }
 
-            StatusIOClass echo_ci = new StatusIOClass("https://status.io/1.0/status/589a53b1243c30490e000feb", "https://omniupdate.status.io/", "EchoCI");
-            statusList.Add(echo_ci.GetServiceStatus());
+            if (_config.GetSection("StatusDotJSON").Exists())
+            {
+                var svc_list = _config.GetSection("StatusDotJSON").Get<StatusDotJsonConfClass[]>();
+
+                foreach (var svc_json in svc_list)
+                {
+                    StatusDotJsonClass svc = new StatusDotJsonClass(
+                        svc_json.Service[0],
+                        svc_json.Service[1], 
+                        svc_json.Service[2]);
+                    
+                    statusList.Add(svc.GetStatus());
+                }
+            }
+
+            //StatusIOClass echo_ci = new StatusIOClass("https://status.io/1.0/status/589a53b1243c30490e000feb", "https://omniupdate.status.io/", "EchoCI");
+            //statusList.Add(echo_ci.GetServiceStatus());
 
             bucket.StatusList = statusList;
 
@@ -87,126 +93,6 @@ namespace StatusPage.Controllers
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-        }
-
-        public async Task<StatusModel> GetStatusAsync(string info_url, 
-            string status_json_url,
-            string service_name)
-        {
-            StatusModel service = new StatusModel();
-            service.StatusURL = info_url;
-            service.Service = service_name;
-            string result;
-
-            using (var httpClient = new HttpClient())
-            {
-                using (var response = await httpClient.GetAsync(status_json_url))
-                {
-                    using (var content = response.Content)
-                    {
-                        result = await content.ReadAsStringAsync();
-                    }
-                }
-            }
-
-            // Slack output https://api.slack.com/docs/slack-status
-            if (status_json_url.Equals("https://status.slack.com/api/v2.0.0/current"))
-            {
-                try
-                {
-                    var JSON = JObject.Parse(result);
-                    if (JSON["status"].ToString().Equals("ok"))
-                    {
-                        service.StatusDescription = "All Systems Operational";
-                        service.UpdateDT = JSON["date_updated"].ToString();
-                        service.Status = 0;
-                    }
-                    else
-                    {
-                        var incidents = JArray.Parse(JSON["active_incidents"].ToString());
-
-                        // loop through the types and break at the worst type
-                        int level = 0;
-                        foreach (var incident in incidents)
-                        {
-                            int this_level = 0;
-
-                            if (incident["type"].ToString().Equals("notice") && incident["status"].ToString().Equals("active"))
-                            {
-                                this_level = 1;
-                            }
-                            else if (incident["type"].ToString().Equals("incident") && incident["status"].ToString().Equals("active"))
-                            {
-                                this_level = 2;
-                            }
-                            else if (incident["type"].ToString().Equals("outage") && incident["status"].ToString().Equals("active"))
-                            {
-                                this_level = 3;
-                            }
-
-
-                            if (this_level > level)
-                            {
-                                level = this_level;
-                                service.UpdateDT = incident["date_updated"].ToString();
-                            }
-                        }
-
-                        if (level == 1)
-                        {
-                            service.StatusDescription = "Notice";
-                            service.Status = -1;
-                        }
-                        else if (level == 2)
-                        {
-                            service.StatusDescription = "Partially Degraded Service";
-                            service.Status = 1;
-                        }
-                        else if (level == 3)
-                        {
-                            service.StatusDescription = "Service Outage";
-                            service.Status = 2;
-                        }
-                    }
-                }
-                catch
-                {
-                    service.StatusDescription = "Unable to reach " + service_name + " API.";
-                    service.UpdateDT = DateTime.Now.ToString();
-                }
-            }
-            // Generic status.json
-            else
-            {
-                try
-                {
-                    var JSON = JObject.Parse(result);
-                    service.Service = service_name;
-                    service.StatusDescription = JSON["status"]["description"].ToString();
-                    service.UpdateDT = JSON["page"]["updated_at"].ToString();
-
-                    if (JSON["status"]["indicator"].ToString().Equals("none"))
-                    {
-                        service.Status = 0;
-                    }
-                    else if (JSON["status"]["indicator"].ToString().Equals("minor"))
-                    {
-                        service.Status = 1;
-                    }
-                    else
-                    {
-                        service.Status = 2;
-                    }
-                }
-                catch
-                {
-                    service.Service = service_name;
-                    service.StatusDescription = "Unable to reach " + service_name + " API.";
-                    service.UpdateDT = DateTime.Now.ToString();
-                }
-            }
-
-            return service;
         }
     }
 }
