@@ -9,9 +9,6 @@ namespace StatusPage.Controllers
 {
     public class ServiceController : Controller
     {
-        private const string clientID = "5210995a-228e-4303-b2e7-598902d8464a";
-        private const string tenant = "e30f5bdb-7f18-435b-8436-9d84aa7b96dd";
-        private const string clientSecret = "5l1.f762hi-6whC4w5GSSl~6~s3CDjGr7V";
         private readonly IConfiguration _config;
 
         public ServiceController(IConfiguration config)
@@ -25,7 +22,10 @@ namespace StatusPage.Controllers
             bucket.CollectionName = "<a href=\"/\">All Services</a><span style=\"color: #cb132a;\"> / </span>" + id + " Details";
             List<StatusModel> statusList = new List<StatusModel>();
 
-            Office365Class o365 = new Office365Class(tenant, clientID, clientSecret);
+            Office365Class o365 = new Office365Class(
+                _config.GetSection("Office365").GetValue("tenant", ""),
+                _config.GetSection("Office365").GetValue("clientID", ""),
+                _config.GetSection("Office365").GetValue("clientSecret", ""));
 
             try
             {
@@ -46,15 +46,11 @@ namespace StatusPage.Controllers
                     }
                 }
             }
-            catch
-            {
+            catch { }
 
-            }
             bucket.StatusList = statusList;
 
             return View("Index", bucket);
-        }
-
-        
+        }        
     }
 }
