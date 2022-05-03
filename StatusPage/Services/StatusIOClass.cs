@@ -13,11 +13,11 @@ namespace StatusPage.Services
         public string service_name;
         private string json;
 
-        public StatusIOClass(string json_url, string status_url, string service_name)
+        public StatusIOClass(string service_name, string json_url, string status_url)
         {
+            this.service_name = service_name;
             this.json_url = json_url;
             this.status_url = status_url;
-            this.service_name = service_name;
         }
 
         private void GetJSON()
@@ -33,7 +33,7 @@ namespace StatusPage.Services
             this.json = json_retrieved;
         }
 
-        public StatusModel GetServiceStatus()
+        public StatusModel GetStatus()
         {
             StatusModel io_service = new StatusModel();
             io_service.Service = this.service_name;

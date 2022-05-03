@@ -81,8 +81,20 @@ namespace StatusPage.Controllers
                 }
             }
 
-            //StatusIOClass echo_ci = new StatusIOClass("https://status.io/1.0/status/589a53b1243c30490e000feb", "https://omniupdate.status.io/", "EchoCI");
-            //statusList.Add(echo_ci.GetServiceStatus());
+            if (_config.GetSection("StatusIO").Exists())
+            {
+                var svc_list = _config.GetSection("StatusIO").Get<StatusDotJsonConfClass[]>();
+
+                foreach (var svc_json in svc_list)
+                {
+                    StatusIOClass svc = new StatusIOClass(
+                        svc_json.Service[0],
+                        svc_json.Service[1],
+                        svc_json.Service[2]);
+
+                    statusList.Add(svc.GetStatus());
+                }
+            }
 
             bucket.StatusList = statusList;
 
