@@ -1,5 +1,5 @@
 # Status Page
-![Employee data](/Images/example.jpg?raw=true "Employee Data title")
+![example_status_page](/Images/example.jpg?raw=true "Example Status Page")
 
 A generic status page that pulls data from various sources used within an organization. This webapp uses .NET Core 3.1.
 
@@ -32,3 +32,6 @@ To change the way this works, you will need to modify the Services/AdobeClass.cs
 With my research, I noticed that many vendors follow a template when developing a status page. Most of which will output a status.json file.
 If one of your services follows this template, you can add the service under the StatusDotJSON section within the appsettings.json file.
 The array value under each service follows the following pattern: ["Display name", "URL for status.json", "The redirect URL when clicking the service"].
+
+## Working Example
+![working_example_status_page](/Images/working-exmple.jpg?raw=true "Working Example Status Page")
