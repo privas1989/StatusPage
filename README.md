@@ -5,10 +5,15 @@ A generic status page that pulls data from various sources used within an organi
 
 ## This repo
 This repo contains a .NET Core 3.1 project that creates a status page web application. 
-It creates web calls that grab status information from Office 365, Adobe CC, Google GSuite, and other status pages.
+It creates web calls that collects status information from Office 365, Adobe CC, Google GSuite, and other status pages and combines their output
+into an easy to read site.
+
+## Customization
+This project outputs a table element with a service in each row based off of the services in the appsettings.json file. The overall look of the table can be modified under the Views/Home/index.cshtml filwe. The default project is running Bootstrap 5 as its CSS framework but can be changed under the Views/Shared/_Layout.cshtml file. 
 
 ## Configuration
 All of the configurations can be done through the appsettings.json file. To remove a service, simply delete the subsection from the appsettings.json file.
+
 ### Office 365
 - Create your Azure AD service account and apply the correct MS Graph permissions as required. Note your client ID and secret for the next step. Follow this link for more details: https://docs.microsoft.com/en-us/graph/api/resources/servicehealth?view=graph-rest-1.0
 - Grab your tenant ID by using these directions: https://docs.microsoft.com/en-us/azure/active-directory/fundamentals/active-directory-how-to-find-tenant
