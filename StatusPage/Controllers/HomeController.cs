@@ -96,6 +96,17 @@ namespace StatusPage.Controllers
                 }
             }
 
+            if (_config.GetSection("Slack").Exists())
+            {
+                string status_url = _config.GetSection("Slack:statusURL").Value;
+                string json_url = _config.GetSection("Slack:jsonURL").Value;
+                string display_name = _config.GetSection("Slack:displayName").Value;
+
+                SlackClass slack = new SlackClass(display_name, json_url, status_url);
+
+                statusList.Add(slack.GetStatus());
+            }
+
             bucket.StatusList = statusList;
 
             return View(bucket);
